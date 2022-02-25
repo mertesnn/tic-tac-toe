@@ -6,8 +6,9 @@ import { emptyBoxes, findEmtpyBoxes } from 'src/Utils/Functions';
 const Board = () => {
   const [boxes, setBoxes] = useState<any[]>(emptyBoxes());
   const [turn, setTurn] = useState<string>('X');
-  const [gameOver, setGameOver] = useState<boolean | undefined>(undefined);
+  const [gameOver, setGameOver] = useState<number[] | undefined>(undefined);
   const moveTurn = useRef<HTMLParagraphElement | null>(null);
+  const board = useRef<HTMLDivElement | null>(null);
 
   const checkWinner = () => {
     const checkX: number[] = [];
@@ -20,10 +21,9 @@ const Board = () => {
     });
 
     winnableMoves.forEach((item) => {
-      if (item.every((elements) => checkX?.includes(elements)))
-        output = 'X wins';
+      if (item.every((elements) => checkX?.includes(elements))) output = item;
       else if (item.every((elements) => checkO?.includes(elements)))
-        output = 'O wins';
+        output = item;
     });
 
     return output;
@@ -41,11 +41,11 @@ const Board = () => {
       boxes[index] = turn;
       setBoxes([...boxes]);
       if (findEmtpyBoxes(boxes).length === 0) {
-        setGameOver(true);
+        setGameOver([10]);
       } else {
         const result = checkWinner();
         if (result) {
-          setGameOver(true);
+          setGameOver(result);
         }
       }
     }
@@ -59,20 +59,29 @@ const Board = () => {
           {turn}
         </Text>
       </Text>
-      <Button variant="outline" onClick={reset}>
+      <Button
+        variant="outline"
+        onClick={reset}
+        display={!gameOver ? 'none' : 'block'}
+      >
         Reset
       </Button>
       <Grid
-        bg={gameOver ? 'black' : ''}
         templateColumns="repeat(3, 1fr)"
         gap={{ base: '2', sm: '4', md: '6', lg: '8' }}
         maxW="xl"
+        ref={board}
         overflow="hidden"
       >
         {boxes
           ? boxes.map((item, index) => (
               <GridItem
                 key={index}
+                backgroundColor={
+                  gameOver
+                    ? gameOver.map((itm) => (index === itm ? 'green' : ''))
+                    : ''
+                }
                 h={{ base: '80px', sm: '105px', md: '130px', lg: '150px' }}
                 w={{ base: '80px', sm: '105px', md: '130px', lg: '150px' }}
                 border="1px solid black"
