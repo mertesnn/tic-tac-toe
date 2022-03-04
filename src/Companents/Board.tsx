@@ -1,63 +1,101 @@
 import { Button, Grid, GridItem, Text } from '@chakra-ui/react';
-import { useRef, useState } from 'react';
-import { winnableMoves } from 'src/Utils/Constants';
-import { emptyBoxes, findEmtpyBoxes } from 'src/Utils/Functions';
+import { useEffect, useState } from 'react';
+import { checkWinner, emptyBoxes } from 'src/Utils/Functions';
 
 const Board = () => {
   const [boxes, setBoxes] = useState<any[]>(emptyBoxes());
   const [turn, setTurn] = useState<string>('X');
   const [gameOver, setGameOver] = useState<number[] | undefined>(undefined);
-  const moveTurn = useRef<HTMLParagraphElement | null>(null);
-  const board = useRef<HTMLDivElement | null>(null);
-
-  const checkWinner = () => {
-    const checkX: number[] = [];
-    const checkO: number[] = [];
-    let output;
-
-    boxes.forEach((item, index) => {
-      if (item === 'X') checkX.push(index);
-      else if (item === 'O') checkO.push(index);
-    });
-
-    winnableMoves.forEach((item) => {
-      if (item.every((elements) => checkX?.includes(elements))) output = item;
-      else if (item.every((elements) => checkO?.includes(elements)))
-        output = item;
-    });
-
-    return output;
-  };
+  const [winner, setWinner] = useState<string | undefined>(undefined);
 
   const reset = () => {
     setBoxes(emptyBoxes());
     setTurn('X');
     setGameOver(undefined);
+    setWinner(undefined);
+  };
+
+  const miniMax = () => {
+    let randomMove = Math.round(Math.random() * 8);
+
+    while (boxes[randomMove]) {
+      randomMove = Math.round(Math.random() * 8);
+    }
+    boxes[randomMove] = 'O';
+    setBoxes([...boxes]);
+  };
+
+  const bestMove = (boxes: any[], player: any) => {
+    const opponent = player === 'X' ? 'O' : 'X';
+
+    const ai = (boxes: any[], isMax: any) => {
+      const winner = checkWinner(boxes)?.winner;
+      if (winner === player) return { box: -1, score: 1 };
+      if (winner === opponent) return { box: -1, score: -1 };
+      if (!boxes.includes(null)) return { box: -1, score: 0 };
+
+      const best = { box: -1, score: isMax ? -1000 : 1000 };
+
+      for (let i = 0; i < boxes.length; i++) {
+        if (boxes[i]) continue;
+
+        boxes[i] = isMax ? player : opponent;
+
+        const score = ai(boxes, !isMax).score;
+
+        boxes[i] = null;
+
+        if (isMax) {
+          if (score > best.score) {
+            best.score = score;
+            best.box = i;
+          }
+        } else {
+          if (score < best.score) {
+            best.score = score;
+            best.box = i;
+          }
+        }
+      }
+      return best;
+    };
+    return ai(boxes, true).box;
   };
 
   const handleMove = (index: any) => {
     if (boxes[index] === null) {
-      setTurn(turn === 'X' ? 'O' : 'X');
+      setTurn('X');
       boxes[index] = turn;
       setBoxes([...boxes]);
-      if (findEmtpyBoxes(boxes).length === 0) {
-        setGameOver([10]);
-      } else {
-        const result = checkWinner();
-        if (result) {
-          setGameOver(result);
+      if (boxes.includes(null)) {
+        const best = bestMove(boxes, 'O');
+
+        if (best !== -1) {
+          boxes[best] = 'O';
+          setBoxes([...boxes]);
         }
       }
     }
   };
 
+  useEffect(() => {
+    const check = checkWinner(boxes);
+    if (check?.winner) {
+      setGameOver(check?.move);
+      setWinner(check?.winner);
+    }
+    if (!boxes.includes(null) && !check?.winner) {
+      setGameOver([9]);
+    }
+  }, [boxes]);
+
   return (
     <>
       <Text userSelect="none">
-        {turn === 'X' || turn === 'O' ? 'Turn: ' : ''}
-        <Text as="span" ref={moveTurn}>
-          {turn}
-        </Text>
+        {!gameOver ? 'Always your turn :)' : 'Game Over!'}
+      </Text>
+      <Text display={!gameOver ? 'none' : 'block'}>
+        {winner ? `${winner} won!` : 'Tie!'}
       </Text>
       <Button
         variant="outline"
@@ -70,7 +108,6 @@ const Board = () => {
         templateColumns="repeat(3, 1fr)"
         gap={{ base: '2', sm: '4', md: '6', lg: '8' }}
         maxW="xl"
-        ref={board}
         overflow="hidden"
       >
         {boxes
