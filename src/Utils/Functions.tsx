@@ -37,3 +37,43 @@ export const checkWinner = (boxes: any[]) => {
 
   return output;
 };
+
+export const bestMove = (boxes: any[], player: any, depth: number) => {
+  const opponent = player === 'X' ? 'O' : 'X';
+
+  const ai = (boxes: any[], isMax: any, depth: number) => {
+    const winner = checkWinner(boxes)?.winner;
+    if (winner === player) return { box: -1, score: 1 };
+    if (winner === opponent) return { box: -1, score: -1 };
+    if (!boxes.includes(null)) return { box: -1, score: 0 };
+
+    const best = { box: -1, score: isMax ? -1000 : 1000 };
+
+    for (let i = 0; i < boxes.length; i++) {
+      if (boxes[i]) continue;
+
+      boxes[i] = isMax ? player : opponent;
+      if (depth !== 0) {
+        const score = ai(boxes, !isMax, depth - 1).score;
+        boxes[i] = null;
+
+        if (isMax) {
+          if (score > best.score) {
+            best.score = score;
+            best.box = i;
+          }
+        } else {
+          if (score < best.score) {
+            best.score = score;
+            best.box = i;
+          }
+        }
+      } else {
+        boxes[i] = null;
+        continue;
+      }
+    }
+    return best;
+  };
+  return ai(boxes, true, depth).box;
+};

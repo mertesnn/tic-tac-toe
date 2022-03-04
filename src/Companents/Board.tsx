@@ -1,12 +1,13 @@
-import { Button, Grid, GridItem, Text } from '@chakra-ui/react';
+import { Button, Grid, GridItem, HStack, Stack, Text } from '@chakra-ui/react';
 import { useEffect, useState } from 'react';
-import { checkWinner, emptyBoxes } from 'src/Utils/Functions';
+import { bestMove, checkWinner, emptyBoxes } from 'src/Utils/Functions';
 
 const Board = () => {
   const [boxes, setBoxes] = useState<any[]>(emptyBoxes());
   const [turn, setTurn] = useState<string>('X');
   const [gameOver, setGameOver] = useState<number[] | undefined>(undefined);
   const [winner, setWinner] = useState<string | undefined>(undefined);
+  const [difficulty, setDifficulty] = useState<number>(0);
 
   const reset = () => {
     setBoxes(emptyBoxes());
@@ -15,51 +16,9 @@ const Board = () => {
     setWinner(undefined);
   };
 
-  const miniMax = () => {
-    let randomMove = Math.round(Math.random() * 8);
-
-    while (boxes[randomMove]) {
-      randomMove = Math.round(Math.random() * 8);
-    }
-    boxes[randomMove] = 'O';
-    setBoxes([...boxes]);
-  };
-
-  const bestMove = (boxes: any[], player: any) => {
-    const opponent = player === 'X' ? 'O' : 'X';
-
-    const ai = (boxes: any[], isMax: any) => {
-      const winner = checkWinner(boxes)?.winner;
-      if (winner === player) return { box: -1, score: 1 };
-      if (winner === opponent) return { box: -1, score: -1 };
-      if (!boxes.includes(null)) return { box: -1, score: 0 };
-
-      const best = { box: -1, score: isMax ? -1000 : 1000 };
-
-      for (let i = 0; i < boxes.length; i++) {
-        if (boxes[i]) continue;
-
-        boxes[i] = isMax ? player : opponent;
-
-        const score = ai(boxes, !isMax).score;
-
-        boxes[i] = null;
-
-        if (isMax) {
-          if (score > best.score) {
-            best.score = score;
-            best.box = i;
-          }
-        } else {
-          if (score < best.score) {
-            best.score = score;
-            best.box = i;
-          }
-        }
-      }
-      return best;
-    };
-    return ai(boxes, true).box;
+  const changeDiff = () => {
+    reset();
+    setDifficulty(0);
   };
 
   const handleMove = (index: any) => {
@@ -68,7 +27,7 @@ const Board = () => {
       boxes[index] = turn;
       setBoxes([...boxes]);
       if (boxes.includes(null)) {
-        const best = bestMove(boxes, 'O');
+        const best = bestMove(boxes, 'O', difficulty);
 
         if (best !== -1) {
           boxes[best] = 'O';
@@ -91,20 +50,22 @@ const Board = () => {
 
   return (
     <>
-      <Text userSelect="none">
+      <Text userSelect="none" display={difficulty ? 'block' : 'none'}>
         {!gameOver ? 'Always your turn :)' : 'Game Over!'}
       </Text>
       <Text display={!gameOver ? 'none' : 'block'}>
         {winner ? `${winner} won!` : 'Tie!'}
       </Text>
-      <Button
-        variant="outline"
-        onClick={reset}
-        display={!gameOver ? 'none' : 'block'}
-      >
-        Reset
-      </Button>
+      <HStack display={!gameOver ? 'none' : 'block'}>
+        <Button variant="outline" onClick={reset}>
+          Reset
+        </Button>
+        <Button variant="outline" onClick={changeDiff}>
+          Change Difficulty
+        </Button>
+      </HStack>
       <Grid
+        display={difficulty ? 'grid' : 'none'}
         templateColumns="repeat(3, 1fr)"
         gap={{ base: '2', sm: '4', md: '6', lg: '8' }}
         maxW="xl"
@@ -134,6 +95,29 @@ const Board = () => {
             ))
           : 'No Data.'}
       </Grid>
+      <Stack display={difficulty ? 'none' : 'flex'}>
+        <Button
+          variant="outline"
+          onClick={() => setDifficulty(3)}
+          display={'block'}
+        >
+          Normal
+        </Button>
+        <Button
+          variant="outline"
+          onClick={() => setDifficulty(5)}
+          display={'block'}
+        >
+          Hard
+        </Button>
+        <Button
+          variant="outline"
+          onClick={() => setDifficulty(7)}
+          display={'block'}
+        >
+          Impossible
+        </Button>
+      </Stack>
     </>
   );
 };
