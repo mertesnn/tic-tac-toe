@@ -98,21 +98,21 @@ const Board = () => {
       <Stack display={difficulty ? 'none' : 'flex'}>
         <Button
           variant="outline"
-          onClick={() => setDifficulty(3)}
+          onClick={() => setDifficulty(5)}
           display={'block'}
         >
           Normal
         </Button>
         <Button
           variant="outline"
-          onClick={() => setDifficulty(5)}
+          onClick={() => setDifficulty(7)}
           display={'block'}
         >
           Hard
         </Button>
         <Button
           variant="outline"
-          onClick={() => setDifficulty(7)}
+          onClick={() => setDifficulty(9)}
           display={'block'}
         >
           Impossible
