@@ -1,4 +1,4 @@
-import { Box, Grid, GridItem, HStack, Stack, Text } from '@chakra-ui/react';
+import { Box, Grid, GridItem, Stack, Text } from '@chakra-ui/react';
 import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { bestMove, checkWinner, emptyBoxes } from 'src/Utils/Functions';
