@@ -9,14 +9,22 @@ const App = () => {
     <ChakraProvider theme={Theme}>
       <Container
         h="100vh"
-        bgGradient="linear(to-l, #FC7000, #FC9900)"
+        bg="#141414"
         maxW="full"
         display="flex"
         flexDirection="column"
         alignItems="center"
         justifyContent="space-between"
       >
-        <Text fontSize="5xl">Tic Tac Toe</Text>
+        <Text
+          fontSize="6xl"
+          userSelect="none"
+          textAlign="center"
+          bgGradient="linear(to-l, #FC6000, #FC9900)"
+          bgClip="text"
+        >
+          Tic Tac Toe
+        </Text>
         <Board />
         <Footer />
       </Container>

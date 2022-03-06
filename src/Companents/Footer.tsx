@@ -11,13 +11,21 @@ const Footer = () => {
       alignItems="center"
       gap="6"
     >
-      <Link href="https://www.instagram.com/mertesen__/" target="_blank">
+      <Link
+        href="https://www.instagram.com/mertesen__/"
+        target="_blank"
+        color="#FC9900"
+      >
         <FaInstagram />
       </Link>
-      <Link href="https://github.com/mertesnn" target="_blank">
+      <Link href="https://github.com/mertesnn" target="_blank" color="#FC9900">
         <FaGithub />
       </Link>
-      <Link href="https://www.linkedin.com/in/mert-esen/" target="_blank">
+      <Link
+        href="https://www.linkedin.com/in/mert-esen/"
+        target="_blank"
+        color="#FC9900"
+      >
         <FaLinkedinIn />
       </Link>
     </Box>
